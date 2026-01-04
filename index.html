@@ -283,6 +283,24 @@ document.getElementById('palette').addEventListener('touchstart',e=>{
   startDrag(t.dataset.note,p.clientX,p.clientY);
 },{passive:false});
 
+/* 從已放置的音名拖出（拖出即刪） */
+document.addEventListener('touchstart', e => {
+  const placed = e.target.closest('.placed');
+  if(!placed) return;
+
+  e.preventDefault();
+
+  const touch = e.touches[0];
+  const note = placed.textContent;
+
+  // 先把原本放在格子裡的刪掉
+  placed.remove();
+
+  // 立刻進入拖曳狀態
+  startDrag(note, touch.clientX, touch.clientY);
+}, { passive:false });
+
+      
 /* 拖曳中 */
 document.addEventListener('touchmove',e=>{
   if(!dragEl) return;
