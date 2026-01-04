@@ -3,19 +3,18 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-<title>大調音階｜三和弦級數表</title>
+<title>大調音階｜三和弦級數練習</title>
 
 <style>
-/* ===== 手機直式優先（含左側標籤欄）===== */
 :root{
   --gap: 6px;
   --side: 12px;
-  --labelW: clamp(54px, 15vw, 78px); /* 左側 Root/3rd/5th 欄寬 */
-  --cell: clamp(
-    32px,
-    calc((100vw - (var(--side) * 2) - var(--labelW) - (var(--gap) * 7)) / 7),
-    64px
-  );
+  --cell: clamp(34px, calc((100vw - (var(--side) * 2) - (var(--gap) * 6)) / 7), 64px);
+
+  /* 左側列標籤（不影響棋盤對齊） */
+  --labelW: 56px;
+  --labelGap: 10px;
+  --colLabelH: 24px;
 }
 
 *{ box-sizing:border-box; }
@@ -28,7 +27,7 @@ body{
 }
 
 .wrapper{
-  max-width:520px;
+  max-width:560px;
   margin:0 auto;
   padding:12px;
 }
@@ -39,47 +38,63 @@ h1{
   margin:6px 0 12px;
 }
 
-/* ===== 外層「含標籤」的棋盤：8 欄（左標籤+7格）× 4 列（上標籤+3格）===== */
-.grid-board{
-  display:grid;
-  grid-template-columns: var(--labelW) repeat(7, var(--cell));
-  grid-template-rows: auto repeat(3, var(--cell));
-  gap: var(--gap);
-  justify-content:center;
+/* ===== 上方棋盤：以「7 欄」為中心對齊 ===== */
+.board-wrap{
+  display:flex;
+  justify-content:center; /* 🔑 讓 7 欄棋盤與下方答案格同中心 */
   margin-bottom:14px;
 }
 
-/* 左上角空白 */
-.corner{
-  height: 24px;
+.board{
+  position:relative;
+  /* 預留左側標籤空間（不改變棋盤中心，只是增加左邊留白） */
+  padding-left: calc(var(--labelW) + var(--labelGap));
+}
+
+/* 真正的棋盤：只有 7 欄（欄標 + 3 排） */
+.grid-board{
+  display:grid;
+  grid-template-columns: repeat(7, var(--cell));
+  grid-template-rows: var(--colLabelH) repeat(3, var(--cell));
+  gap: var(--gap);
+  justify-content:center;
 }
 
 /* 上方欄標 */
 .col-label{
-  height: 24px;
+  height: var(--colLabelH);
   display:flex;
   align-items:flex-end;
   justify-content:center;
-  font-size: 12px;
-  font-weight: 700;
-  color: rgba(255,255,255,.82);
-  letter-spacing: .2px;
+  font-size:12px;
+  font-weight:800;
+  color:rgba(255,255,255,.85);
 }
 
-/* 左側列標 */
-.row-label{
+/* 左側列標（不佔 grid 欄位，獨立貼上） */
+.row-labels{
+  position:absolute;
+  left: 0;
+  top: var(--colLabelH);
   width: var(--labelW);
+  display:flex;
+  flex-direction:column;
+  gap: var(--gap);
+  padding-right: var(--labelGap);
+  align-items:flex-end;
+}
+
+.row-label{
   height: var(--cell);
   display:flex;
   align-items:center;
   justify-content:flex-end;
-  padding-right: 8px;
-  font-size: 12px;
-  font-weight: 800;
-  color: rgba(255,255,255,.80);
+  font-size:12px;
+  font-weight:800;
+  color: rgba(255,255,255,.8);
 }
 
-/* 7×3 格子 */
+/* 7×3 空白格 */
 .cell{
   width:var(--cell);
   height:var(--cell);
@@ -93,7 +108,7 @@ h1{
   background:rgba(111,186,255,.15);
 }
 
-/* ===== 音名區 ===== */
+/* ===== 下方答案格（音名） ===== */
 .palette{
   display:flex;
   flex-direction:column;
@@ -156,78 +171,47 @@ h1{
   font-weight:800;
 }
 .clear-all:active{ transform:translateY(1px); }
-/* ===== 上方棋盤對齊下方答案格 ===== */
-.board-wrap{
-  position: relative;
-  display: flex;
-  justify-content: center; /* 🔑 以 7 欄為中心 */
-  margin-bottom: 14px;
-}
 
-/* 左側 Root / 3rd / 5th */
-.row-labels{
-  position: absolute;
-  left: calc(50% - (var(--cell) * 3.5) - 48px); /* 貼在 7 欄左邊 */
-  top: 24px; /* 對齊第一排格子 */
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap);
+/* 小螢幕稍微縮左標 */
+@media (max-width: 380px){
+  :root{ --labelW: 48px; --labelGap: 8px; }
 }
-
-.row-label{
-  height: var(--cell);
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: 6px;
-  font-size: 12px;
-  font-weight: 800;
-  color: rgba(255,255,255,.8);
-}
-
-/* 真正的 7×3 */
-.grid-board{
-  display: grid;
-  grid-template-columns: repeat(7, var(--cell));
-  grid-template-rows: 24px repeat(3, var(--cell));
-  gap: var(--gap);
-  justify-content: center;
-}
-
-  
 </style>
 </head>
 
 <body>
-<div ="wrapper">
+<div class="wrapper">
   <h1>大調音階・三和弦級數練習</h1>
 
-  <!-- 含標籤的棋盤 -->
-  <div ="grid-board" id="gridBoard">
-    <!-- 左上角 -->
-    <div ="corner"></div>
+  <!-- 上方棋盤（7欄與下方答案格對齊） -->
+  <div class="board-wrap">
+    <div class="board">
+      <!-- 左側列標（上：5th / 中：3rd / 下：Root） -->
+      <div class="row-labels" aria-hidden="true">
+        <div class="row-label">5th</div>
+        <div class="row-label">3rd</div>
+        <div class="row-label">Root</div>
+      </div>
 
-    <!-- 上方 7 欄標籤 -->
-    <div ="col-label">1</div>
-    <div ="col-label">2m</div>
-    <div ="col-label">3m</div>
-    <div ="col-label">4</div>
-    <div ="col-label">5</div>
-    <div class="col-label">6m</div>
-    <div class="col-label">7mb5</div>
+      <!-- 欄標 + 7×3 -->
+      <div class="grid-board" id="gridBoard">
+        <div class="col-label">1</div>
+        <div class="col-label">2m</div>
+        <div class="col-label">3m</div>
+        <div class="col-label">4</div>
+        <div class="col-label">5</div>
+        <div class="col-label">6m</div>
+        <div class="col-label">7mb5</div>
 
-    <!-- 第 1 列：5th（最上） -->
-<div class="row-label">5th</div>
-<div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-
-<!-- 第 2 列：3rd -->
-<div class="row-label">3rd</div>
-<div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-
-<!-- 第 3 列：Root（最下） -->
-<div class="row-label">Root</div>
-<div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-</div>
+        <!-- 第 1 排（5th） -->
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <!-- 第 2 排（3rd） -->
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <!-- 第 3 排（Root） -->
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+      </div>
+    </div>
+  </div>
 
   <!-- 音名 -->
   <div class="palette" id="palette">
@@ -270,24 +254,25 @@ let dragEl = null;
 let dragNote = null;
 let overCell = null;
 
-/* 工具 */
+/* ===== 工具 ===== */
 function clearHighlight(){
   cells.forEach(c => c.classList.remove('highlight'));
 }
+
 function findCell(x, y){
   const el = document.elementFromPoint(x, y);
   return el && el.classList.contains('cell') ? el : el?.closest('.cell');
 }
-function cleanupDrag(){
-  clearHighlight();
-  if (dragEl) dragEl.remove();
+
+function cleanupDragging(){
+  document.querySelectorAll('.dragging').forEach(el => el.remove());
   dragEl = null;
   dragNote = null;
   overCell = null;
 }
+
 function startDrag(note, x, y){
-  // 避免殘留的 dragEl 造成鬼影
-  cleanupDrag();
+  cleanupDragging();
 
   dragNote = note;
   dragEl = document.createElement('div');
@@ -295,13 +280,12 @@ function startDrag(note, x, y){
   dragEl.textContent = dragNote;
   document.body.appendChild(dragEl);
 
-  // ✅ 關鍵：touchstart 當下就定位，避免左側/左上角冒出「多一顆」
   dragEl.style.left = x + 'px';
   dragEl.style.top  = y + 'px';
 }
 
-/* 1) 從音名區拖 */
-document.getElementById('palette').addEventListener('touchstart', e => {
+/* ===== 從音名區拖 ===== */
+document.getElementById('palette').addEventListener('touchstart', (e) => {
   const t = e.target.closest('.palette-tile');
   if(!t) return;
   e.preventDefault();
@@ -310,19 +294,21 @@ document.getElementById('palette').addEventListener('touchstart', e => {
   startDrag(t.dataset.note, touch.clientX, touch.clientY);
 }, { passive:false });
 
-/* 2) 從已放置方塊拖出（拖出放手即刪除） */
-document.addEventListener('touchstart', e => {
+/* ===== 從已放置方塊拖出（拖出放手即消失）===== */
+document.addEventListener('touchstart', (e) => {
   const placed = e.target.closest('.placed');
   if(!placed) return;
   e.preventDefault();
 
   const touch = e.touches[0];
-  startDrag(placed.textContent, touch.clientX, touch.clientY);
-  placed.remove(); // 先拿掉；若沒放回格子＝刪除
+  const note = placed.textContent;
+
+  placed.remove();
+  startDrag(note, touch.clientX, touch.clientY);
 }, { passive:false });
 
-/* 拖曳中 */
-document.addEventListener('touchmove', e => {
+/* ===== 拖曳中 ===== */
+document.addEventListener('touchmove', (e) => {
   if(!dragEl) return;
   e.preventDefault();
 
@@ -338,9 +324,11 @@ document.addEventListener('touchmove', e => {
   }
 }, { passive:false });
 
-/* 放手：有放到格子就放入，沒放到就消失 */
+/* ===== 放手 ===== */
 document.addEventListener('touchend', () => {
   if(!dragEl) return;
+
+  clearHighlight();
 
   if(overCell){
     overCell.innerHTML = '';
@@ -349,20 +337,22 @@ document.addEventListener('touchend', () => {
     placed.textContent = dragNote;
     overCell.appendChild(placed);
   }
-  cleanupDrag();
+
+  cleanupDragging();
 }, { passive:false });
 
-/* ✅ 重要：遇到來電/切App/系統中斷時，也要清掉拖曳殘影 */
+/* ===== 觸控中斷保底 ===== */
 document.addEventListener('touchcancel', () => {
-  cleanupDrag();
+  clearHighlight();
+  cleanupDragging();
 }, { passive:false });
 
-/* 全部刪除：清空格子 + 同時清掉任何卡住的拖曳方塊 */
+/* ===== 全部刪除 ===== */
 document.getElementById('clearAllBtn').addEventListener('click', () => {
   cells.forEach(c => c.innerHTML = '');
-  cleanupDrag();
+  clearHighlight();
+  cleanupDragging();
 });
 </script>
-
 </body>
 </html>
