@@ -160,6 +160,8 @@ const cells = [...document.querySelectorAll('.cell')];
 let dragEl = null;
 let dragNote = null;
 let overCell = null;
+let fromCell = null; // ⭐ 新增：記住是從哪個格子拖出來的
+
 
 function clearHighlight(){
   cells.forEach(c=>c.classList.remove('highlight'));
@@ -182,6 +184,25 @@ document.getElementById('palette').addEventListener('touchstart',e=>{
   document.body.appendChild(dragEl);
 },{passive:false});
 
+// ===== 已放置方塊：拖出即刪除 =====
+document.addEventListener('touchstart', e => {
+  const placed = e.target.closest('.placed');
+  if (!placed) return;
+
+  e.preventDefault();
+
+  fromCell = placed.parentElement;
+  dragNote = placed.textContent;
+
+  dragEl = document.createElement('div');
+  dragEl.className = 'tile dragging';
+  dragEl.textContent = dragNote;
+  document.body.appendChild(dragEl);
+
+  placed.remove(); // ⭐ 先從格子拿掉
+}, { passive: false });
+
+  
 document.addEventListener('touchmove',e=>{
   if(!dragEl) return;
   e.preventDefault();
@@ -198,31 +219,28 @@ document.addEventListener('touchmove',e=>{
   }
 },{passive:false});
 
-document.addEventListener('touchend',e=>{
-  if(!dragEl) return;
+document.addEventListener('touchend', e => {
+  if (!dragEl) return;
 
   clearHighlight();
-  if(overCell){
+
+  if (overCell) {
+    // ✅ 有放回某個格子 → 放進去
     overCell.innerHTML = '';
     const placed = document.createElement('div');
     placed.className = 'tile placed';
     placed.textContent = dragNote;
-
-    let lastTap = 0;
-    placed.addEventListener('touchend',ev=>{
-      const now = Date.now();
-      if(now-lastTap < 300) placed.remove();
-      lastTap = now;
-    });
-
     overCell.appendChild(placed);
   }
+  // ❌ 沒放在任何格子 → 直接消失（不做任何事）
 
   dragEl.remove();
   dragEl = null;
   dragNote = null;
   overCell = null;
+  fromCell = null;
 });
+
 </script>
 </body>
 </html>
