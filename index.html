@@ -111,15 +111,18 @@ h1{
 .cell{
   width:var(--cell);
   height:var(--cell);
-  border:1px dashed rgba(255,255,255,.4);
+  border:1.5px dashed rgba(0,0,0,.55);
   border-radius:10px;
   position:relative;
+  background:transparent;
 }
 
+
 .cell.highlight{
-  border-color:#6fbaff;
-  background:rgba(111,186,255,.15);
+  border-color:#222;
+  background:rgba(0,0,0,.08);
 }
+
 
 /* ===== 音名區 ===== */
 .palette{
@@ -172,11 +175,17 @@ h1{
   bottom:16px;
   padding:12px 14px;
   border-radius:14px;
-  background:rgba(255,255,255,.12);
-  border:1px solid rgba(255,255,255,.2);
-  color:#fff;
+  background:#f2f1ee;                /* 跟背景一致 */
+  border:1.5px solid rgba(0,0,0,.6); /* 黑色邊線 */
+  color:#111;                        /* 深色文字 */
   font-weight:800;
 }
+
+      .clear-all:active{
+  background:#e6e4df;
+}
+
+
 
       /* ===== 鋼琴鍵視覺 ===== */
 
