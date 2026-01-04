@@ -6,11 +6,16 @@
 <title>大調音階｜三和弦級數練習</title>
 
 <style>
-/* ===== 手機直式優先 ===== */
+/* ===== 手機直式優先（含左側標籤欄）===== */
 :root{
   --gap: 6px;
   --side: 12px;
-  --cell: calc((100vw - (var(--side) * 2) - (var(--gap) * 6)) / 7);
+  --labelW: clamp(54px, 15vw, 78px); /* 左側 Root/3rd/5th 欄寬 */
+  --cell: clamp(
+    32px,
+    calc((100vw - (var(--side) * 2) - var(--labelW) - (var(--gap) * 7)) / 7),
+    64px
+  );
 }
 
 *{ box-sizing:border-box; }
@@ -23,7 +28,7 @@ body{
 }
 
 .wrapper{
-  max-width:480px;
+  max-width:520px;
   margin:0 auto;
   padding:12px;
 }
@@ -34,16 +39,47 @@ h1{
   margin:6px 0 12px;
 }
 
-/* ===== 7×3 格子 ===== */
-.grid{
+/* ===== 外層「含標籤」的棋盤：8 欄（左標籤+7格）× 4 列（上標籤+3格）===== */
+.grid-board{
   display:grid;
-  grid-template-columns:repeat(7,var(--cell));
-  grid-template-rows:repeat(3,var(--cell));
-  gap:var(--gap);
+  grid-template-columns: var(--labelW) repeat(7, var(--cell));
+  grid-template-rows: auto repeat(3, var(--cell));
+  gap: var(--gap);
   justify-content:center;
   margin-bottom:14px;
 }
 
+/* 左上角空白 */
+.corner{
+  height: 24px;
+}
+
+/* 上方欄標 */
+.col-label{
+  height: 24px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255,255,255,.82);
+  letter-spacing: .2px;
+}
+
+/* 左側列標 */
+.row-label{
+  width: var(--labelW);
+  height: var(--cell);
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  padding-right: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(255,255,255,.80);
+}
+
+/* 7×3 格子 */
 .cell{
   width:var(--cell);
   height:var(--cell);
@@ -88,7 +124,7 @@ h1{
   color:#fff;
 }
 
-/* ===== 拖曳中的方塊 ===== */
+/* 拖曳中的方塊 */
 .dragging{
   position:fixed;
   z-index:9999;
@@ -97,7 +133,7 @@ h1{
   background:#9aa0a8;
 }
 
-/* ===== 已放置 ===== */
+/* 已放置 */
 .placed{
   position:absolute;
   left:50%;
@@ -106,7 +142,7 @@ h1{
   background:#6e7680;
 }
 
-/* ===== 右下角全部刪除 ===== */
+/* 右下角全部刪除 */
 .clear-all{
   position:fixed;
   right:14px;
@@ -117,7 +153,7 @@ h1{
   border:1px solid rgba(255,255,255,.2);
   background:rgba(255,255,255,.12);
   color:#fff;
-  font-weight:700;
+  font-weight:800;
 }
 .clear-all:active{ transform:translateY(1px); }
 </style>
@@ -127,11 +163,30 @@ h1{
 <div class="wrapper">
   <h1>大調音階・三和弦級數練習</h1>
 
-  <!-- 7×3 -->
-  <div class="grid" id="grid">
-    <!-- 21 格 -->
+  <!-- 含標籤的棋盤 -->
+  <div class="grid-board" id="gridBoard">
+    <!-- 左上角 -->
+    <div class="corner"></div>
+
+    <!-- 上方 7 欄標籤 -->
+    <div class="col-label">1</div>
+    <div class="col-label">2m</div>
+    <div class="col-label">3m</div>
+    <div class="col-label">4</div>
+    <div class="col-label">5</div>
+    <div class="col-label">6m</div>
+    <div class="col-label">7mb5</div>
+
+    <!-- 第 1 列：Root -->
+    <div class="row-label">Root</div>
     <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+
+    <!-- 第 2 列：3rd -->
+    <div class="row-label">3rd</div>
     <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+
+    <!-- 第 3 列：5th -->
+    <div class="row-label">5th</div>
     <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
   </div>
 
@@ -167,7 +222,6 @@ h1{
   </div>
 </div>
 
-<!-- 全部刪除 -->
 <button id="clearAllBtn" class="clear-all">全部刪除</button>
 
 <script>
@@ -198,7 +252,7 @@ document.getElementById('palette').addEventListener('touchstart', e=>{
   document.body.appendChild(dragEl);
 },{passive:false});
 
-/* 從已放置方塊拖出 */
+/* 從已放置方塊拖出（拖出放手即消失，不需要點兩下） */
 document.addEventListener('touchstart', e=>{
   const placed = e.target.closest('.placed');
   if(!placed) return;
@@ -209,7 +263,7 @@ document.addEventListener('touchstart', e=>{
   dragEl.className = 'tile dragging';
   dragEl.textContent = dragNote;
   document.body.appendChild(dragEl);
-  placed.remove(); // 直接先拿掉
+  placed.remove(); // 先拿掉，若沒放回格子就等於刪除
 },{passive:false});
 
 /* 拖曳中 */
@@ -234,6 +288,7 @@ document.addEventListener('touchend', ()=>{
   if(!dragEl) return;
 
   clearHighlight();
+
   if(overCell){
     overCell.innerHTML = '';
     const placed = document.createElement('div');
@@ -241,13 +296,15 @@ document.addEventListener('touchend', ()=>{
     placed.textContent = dragNote;
     overCell.appendChild(placed);
   }
+  // 沒放到任何 cell：直接消失（不做任何事）
+
   dragEl.remove();
   dragEl = null;
   dragNote = null;
   overCell = null;
 });
 
-/* 全部刪除 */
+/* 全部刪除：清空 7×3 */
 document.getElementById('clearAllBtn').addEventListener('click', ()=>{
   cells.forEach(c=>c.innerHTML='');
 });
