@@ -10,25 +10,20 @@
   --gap: 6px;
   --side: 12px;
 
-  /* 讓小手機也不擠爆 */
-  --cell: clamp(
-  28px,
-  calc((100vw - (var(--side) * 2) - (var(--labelW) + var(--labelGap)) - (var(--gap) * 6)) / 7),
-  64px
-);
+  /* 只用 7 欄算格子尺寸：棋盤與答案格完全同規格 */
+  --cell: clamp(30px, calc((100vw - (var(--side) * 2) - (var(--gap) * 6)) / 7), 64px);
 
+  /* 左側符號（不佔位，只貼在外側） */
+  --labelGap: 8px;          /* 標籤距離棋盤的距離 */
+  --labelW: 44px;           /* 標籤區寬（越小越靠左） */
 
-  /* 左側列標籤：加寬避免 Root 擠出 */
-  --labelW: clamp(56px, 16vw, 68px);
-  --labelGap: 10px;
-
-  /* 上方欄標高度加一點，避免擠到格子 */
+  /* 欄標高度 */
   --colLabelH: 28px;
 }
 
 *{ box-sizing:border-box; }
 
-/* ✅ 固定背景/版面：禁止捲動與回彈 */
+/* ✅ 固定背景：不捲動/不回彈（拖曳時版面不跑） */
 html, body{
   height:100%;
   overflow:hidden;
@@ -57,19 +52,18 @@ h1{
   margin:6px 0 12px;
 }
 
-/* ===== 上方棋盤：以「7欄」為中心對齊 ===== */
+/* ===== 上方棋盤：只以 7 欄為對齊基準 ===== */
 .board-wrap{
   display:flex;
-  justify-content:center; /* 🔑 讓 7 欄棋盤與下方答案格同中心 */
+  justify-content:center; /* 🔑 讓棋盤與下方答案格同中心 */
   margin-bottom:14px;
 }
 
 .board{
-  position:relative;
-  padding-left: calc(var(--labelW) + var(--labelGap)); /* 預留左側標籤空間，不改變棋盤中心 */
+  position:relative; /* 讓左側標籤可以貼在外側 */
 }
 
-/* 真正棋盤：只有 7 欄 */
+/* 棋盤本體：只有 7 欄（欄標 + 3 排） */
 .grid-board{
   display:grid;
   grid-template-columns: repeat(7, var(--cell));
@@ -78,7 +72,7 @@ h1{
   justify-content:center;
 }
 
-/* 上方欄標：自適應字級、永不超出 */
+/* 上方欄標（自適應字級，避免爆字） */
 .col-label{
   height: var(--colLabelH);
   display:flex;
@@ -93,16 +87,15 @@ h1{
   line-height:1;
 }
 
-/* 左側列標：不佔 grid 欄位，獨立貼上 */
+/* 左側列標：貼在棋盤外側，不佔用任何空間 */
 .row-labels{
   position:absolute;
-  left: 0;
   top: var(--colLabelH);
+  right: calc(100% + var(--labelGap)); /* 🔑 貼在棋盤左側外面 */
   width: var(--labelW);
   display:flex;
   flex-direction:column;
   gap: var(--gap);
-  padding-right: var(--labelGap);
   align-items:flex-end;
 }
 
@@ -198,9 +191,14 @@ h1{
 }
 .clear-all:active{ transform:translateY(1px); }
 
-/* 小螢幕再縮一下左標，避免擠爆 */
+/* 小手機：讓左側標籤更「靠左、更不佔眼」 */
 @media (max-width: 380px){
-  :root{ --labelW: 60px; --labelGap: 8px; }
+  :root{
+    --labelW: 38px;
+    --labelGap: 6px;
+    --colLabelH: 26px;
+    --cell: clamp(28px, calc((100vw - (var(--side) * 2) - (var(--gap) * 6)) / 7), 64px);
+  }
 }
 </style>
 </head>
@@ -209,17 +207,16 @@ h1{
 <div class="wrapper">
   <h1>大調音階・三和弦級數練習</h1>
 
-  <!-- 上方棋盤（7欄與下方答案格對齊） -->
+  <!-- 上方棋盤（與答案格完全對齊） -->
   <div class="board-wrap">
     <div class="board">
-      <!-- 左側列標（上：5th / 中：3rd / 下：Root） -->
+      <!-- 左側列標：不佔位，貼在外側 -->
       <div class="row-labels" aria-hidden="true">
         <div class="row-label">5th</div>
         <div class="row-label">3rd</div>
         <div class="row-label">Root</div>
       </div>
 
-      <!-- 欄標 + 7×3 -->
       <div class="grid-board" id="gridBoard">
         <div class="col-label">1</div>
         <div class="col-label">2m</div>
