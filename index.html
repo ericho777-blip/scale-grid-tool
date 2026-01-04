@@ -1,28 +1,38 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<meta charset="utf-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>大調音階｜三和弦級數練習</title>
 
 <style>
+/* =========================
+   核心尺寸設定（唯一真相）
+========================= */
 :root{
   --gap: 6px;
-  --side: 12px;
 
-/* ✅ 棋盤最大可用寬度（關鍵） */
-  --boardMax: 420px;   /* 380~440 都合理，我幫你選教材感最好的 */
+  /* 棋盤最大寬度（避免 Pro Max 滿版） */
+  --boardMax: 420px;
 
-  /* 其他保持不變 */
-  --labelGap: 8px;
-  --labelW: 36px;
-  --colLabelH: 28px;
+  /* 單格尺寸：以「7欄」為唯一基準 */
+  --cell: clamp(
+    30px,
+    calc((min(100vw, var(--boardMax)) - (var(--gap) * 6)) / 7),
+    56px
+  );
+
+  --colLabelH: 26px;
 }
 
+/* =========================
+   全域穩定設定
+========================= */
 *{ box-sizing:border-box; }
 
-/* ✅ 固定背景：不捲動/不回彈（拖曳時版面不跑） */
 html, body{
+  margin:0;
   height:100%;
   overflow:hidden;
   overscroll-behavior:none;
@@ -30,90 +40,80 @@ html, body{
 }
 
 body{
-  margin:0;
   background:#0f1115;
   color:#fff;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC","PingFang TC",sans-serif;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",
+               Roboto,"Noto Sans TC","PingFang TC",sans-serif;
 }
 
 .wrapper{
   max-width:560px;
   margin:0 auto;
   padding:12px;
-  height:100%;
-  overflow:hidden;
 }
 
 h1{
-  font-size:16px;
   text-align:center;
+  font-size:16px;
   margin:6px 0 12px;
 }
 
-/* ===== 上方棋盤：只以 7 欄為對齊基準 ===== */
+/* =========================
+   上方棋盤（唯一對齊基準）
+========================= */
 .board-wrap{
   display:flex;
-  justify-content:center; /* 🔑 讓棋盤與下方答案格同中心 */
+  justify-content:center;
   margin-bottom:14px;
 }
 
 .board{
-  position:relative; /* 讓左側標籤可以貼在外側 */
+  position:relative;
 }
 
-/* 棋盤本體：只有 7 欄（欄標 + 3 排） */
-.grid-board{
-  display:grid;
-  grid-template-columns: repeat(7, var(--cell));
-  grid-template-rows: var(--colLabelH) repeat(3, var(--cell));
-  gap: var(--gap);
-  justify-content:center;
-}
-
-/* 上方欄標（自適應字級，避免爆字） */
-.col-label{
-  height: var(--colLabelH);
-  display:flex;
-  align-items:flex-end;
-  justify-content:center;
-  font-size: clamp(10px, 2.8vw, 12px);
-  font-weight:800;
-  color:rgba(255,255,255,.88);
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  line-height:1;
-}
-
-/* 左側列標：貼在棋盤外側，不佔用任何空間 */
+/* 左側 R / 3 / 5（不佔位） */
 .row-labels{
   position:absolute;
   top: var(--colLabelH);
-  left: 0;                         /* 以棋盤左邊為基準 */
-  transform: translateX(-70%);     /* 往左移一點，但仍在畫面內 */
-  width: var(--labelW);
+  left: 0;
+  transform: translateX(-60%);
   display:flex;
   flex-direction:column;
   gap: var(--gap);
-  align-items:flex-end;
-  pointer-events:none;             /* 不干擾拖曳 */
+  pointer-events:none;
 }
 
 .row-label{
   height: var(--cell);
+  width: 24px;
   display:flex;
   align-items:center;
   justify-content:flex-end;
-  font-size: clamp(10px, 2.8vw, 12px);
+  font-size:12px;
   font-weight:800;
-  color: rgba(255,255,255,.82);
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  line-height:1;
+  opacity:.85;
 }
 
-/* 7×3 空白格 */
+/* 棋盤本體：只有 7 欄 */
+.grid-board{
+  display:grid;
+  grid-template-columns:repeat(7,var(--cell));
+  grid-template-rows:var(--colLabelH) repeat(3,var(--cell));
+  gap:var(--gap);
+}
+
+/* 欄標 */
+.col-label{
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  font-size:12px;
+  font-weight:800;
+  opacity:.9;
+  white-space:nowrap;
+}
+
+/* 空白格 */
 .cell{
   width:var(--cell);
   height:var(--cell);
@@ -127,7 +127,9 @@ h1{
   background:rgba(111,186,255,.15);
 }
 
-/* ===== 下方答案格（音名） ===== */
+/* =========================
+   下方答案格（完全同規）
+========================= */
 .palette{
   display:flex;
   flex-direction:column;
@@ -150,15 +152,13 @@ h1{
   justify-content:center;
   font-weight:700;
   user-select:none;
-  touch-action:none;
 }
 
 .palette-tile{
   background:#8a8f98;
-  color:#fff;
 }
 
-/* 拖曳中的方塊 */
+/* 拖曳 */
 .dragging{
   position:fixed;
   z-index:9999;
@@ -167,7 +167,6 @@ h1{
   background:#9aa0a8;
 }
 
-/* 已放置 */
 .placed{
   position:absolute;
   left:50%;
@@ -176,36 +175,17 @@ h1{
   background:#6e7680;
 }
 
-/* 右下角全部刪除 */
+/* 全部刪除 */
 .clear-all{
   position:fixed;
   right:14px;
   bottom:14px;
-  z-index:1000;
   padding:12px 14px;
   border-radius:14px;
-  border:1px solid rgba(255,255,255,.2);
   background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.2);
   color:#fff;
   font-weight:800;
-}
-.clear-all:active{ transform:translateY(1px); }
-
-/* 小手機：讓左側標籤更「靠左、更不佔眼」 */
-@media (max-width: 380px){
-  :root{
-    --labelW: 38px;
-    --labelGap: 6px;
-    --colLabelH: 26px;
-    --cell: clamp(
-  30px,
-  calc(
-    (min(100vw, var(--boardMax)) - (var(--side) * 2) - (var(--gap) * 6))
-    / 7
-  ),
-  56px
-);
-  }
 }
 </style>
 </head>
@@ -214,18 +194,15 @@ h1{
 <div class="wrapper">
   <h1>大調音階・三和弦級數練習</h1>
 
-  <!-- 上方棋盤（與答案格完全對齊） -->
   <div class="board-wrap">
     <div class="board">
-      <!-- 左側列標：不佔位，貼在外側 -->
-      <div class="row-labels" aria-hidden="true">
-  <div class="row-label">5</div>
-  <div class="row-label">3</div>
-  <div class="row-label">R</div>
-</div>
+      <div class="row-labels">
+        <div class="row-label">5</div>
+        <div class="row-label">3</div>
+        <div class="row-label">R</div>
+      </div>
 
-
-      <div class="grid-board" id="gridBoard">
+      <div class="grid-board">
         <div class="col-label">1</div>
         <div class="col-label">2m</div>
         <div class="col-label">3m</div>
@@ -234,17 +211,19 @@ h1{
         <div class="col-label">6m</div>
         <div class="col-label">7m♭5</div>
 
-        <!-- 第 1 排（5th） -->
-        <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-        <!-- 第 2 排（3rd） -->
-        <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-        <!-- 第 3 排（Root） -->
-        <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <!-- 5th -->
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <!-- 3rd -->
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <!-- Root -->
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
       </div>
     </div>
   </div>
 
-  <!-- 音名 -->
   <div class="palette" id="palette">
     <div class="row">
       <div class="tile palette-tile" data-note="C">C</div>
@@ -276,118 +255,73 @@ h1{
   </div>
 </div>
 
-<button id="clearAllBtn" class="clear-all">全部刪除</button>
+<button class="clear-all" id="clearAllBtn">全部刪除</button>
 
 <script>
-/* ✅ 強制防止整頁在拖曳時捲動/回彈（背景固定） */
-document.addEventListener('touchmove', (e) => {
-  e.preventDefault();
-}, { passive: false });
+document.addEventListener('touchmove', e => e.preventDefault(), {passive:false});
 
 const cells = [...document.querySelectorAll('.cell')];
+let dragEl = null, dragNote = null, overCell = null;
 
-let dragEl = null;
-let dragNote = null;
-let overCell = null;
-
-/* 工具 */
 function clearHighlight(){
   cells.forEach(c => c.classList.remove('highlight'));
 }
 
-function findCell(x, y){
-  const el = document.elementFromPoint(x, y);
-  return el && el.classList.contains('cell') ? el : el?.closest('.cell');
-}
-
-function cleanupDragging(){
-  document.querySelectorAll('.dragging').forEach(el => el.remove());
-  dragEl = null;
-  dragNote = null;
-  overCell = null;
-}
-
-function startDrag(note, x, y){
-  cleanupDragging();
-
+function startDrag(note,x,y){
+  cleanup();
   dragNote = note;
   dragEl = document.createElement('div');
   dragEl.className = 'tile dragging';
-  dragEl.textContent = dragNote;
+  dragEl.textContent = note;
   document.body.appendChild(dragEl);
-
-  dragEl.style.left = x + 'px';
-  dragEl.style.top  = y + 'px';
+  dragEl.style.left = x+'px';
+  dragEl.style.top  = y+'px';
 }
 
-/* 從音名區拖 */
-document.getElementById('palette').addEventListener('touchstart', (e) => {
+function cleanup(){
+  document.querySelectorAll('.dragging').forEach(e=>e.remove());
+  dragEl=null; dragNote=null; overCell=null;
+}
+
+document.getElementById('palette').addEventListener('touchstart', e=>{
   const t = e.target.closest('.palette-tile');
   if(!t) return;
   e.preventDefault();
-
   const touch = e.touches[0];
   startDrag(t.dataset.note, touch.clientX, touch.clientY);
-}, { passive:false });
+},{passive:false});
 
-/* 從已放置方塊拖出（拖出放手即消失） */
-document.addEventListener('touchstart', (e) => {
-  const placed = e.target.closest('.placed');
-  if(!placed) return;
-  e.preventDefault();
-
-  const touch = e.touches[0];
-  const note = placed.textContent;
-
-  placed.remove();
-  startDrag(note, touch.clientX, touch.clientY);
-}, { passive:false });
-
-/* 拖曳中 */
-document.addEventListener('touchmove', (e) => {
+document.addEventListener('touchmove', e=>{
   if(!dragEl) return;
-
-  const touch = e.touches[0];
-  dragEl.style.left = touch.clientX + 'px';
-  dragEl.style.top  = touch.clientY + 'px';
-
-  const cell = findCell(touch.clientX, touch.clientY);
-  if(cell !== overCell){
-    overCell = cell;
+  const t=e.touches[0];
+  dragEl.style.left=t.clientX+'px';
+  dragEl.style.top=t.clientY+'px';
+  const el=document.elementFromPoint(t.clientX,t.clientY);
+  const cell=el?.closest('.cell');
+  if(cell!==overCell){
+    overCell=cell;
     clearHighlight();
     if(overCell) overCell.classList.add('highlight');
   }
-}, { passive:false });
+},{passive:false});
 
-/* 放手 */
-document.addEventListener('touchend', () => {
+document.addEventListener('touchend', ()=>{
   if(!dragEl) return;
-
   clearHighlight();
-
   if(overCell){
-    overCell.innerHTML = '';
-    const placed = document.createElement('div');
-    placed.className = 'tile placed';
-    placed.textContent = dragNote;
-    overCell.appendChild(placed);
+    overCell.innerHTML='';
+    const p=document.createElement('div');
+    p.className='tile placed';
+    p.textContent=dragNote;
+    overCell.appendChild(p);
   }
+  cleanup();
+},{passive:false});
 
-  cleanupDragging();
-}, { passive:false });
-
-/* 觸控中斷保底 */
-document.addEventListener('touchcancel', () => {
-  clearHighlight();
-  cleanupDragging();
-}, { passive:false });
-
-/* 全部刪除 */
-document.getElementById('clearAllBtn').addEventListener('click', () => {
-  cells.forEach(c => c.innerHTML = '');
-  clearHighlight();
-  cleanupDragging();
-});
+document.getElementById('clearAllBtn').onclick=()=>{
+  cells.forEach(c=>c.innerHTML='');
+  cleanup();
+};
 </script>
 </body>
 </html>
