@@ -10,14 +10,12 @@
   --gap: 6px;
   --side: 12px;
 
-  /* 只用 7 欄算格子尺寸：棋盤與答案格完全同規格 */
-  --cell: clamp(30px, calc((100vw - (var(--side) * 2) - (var(--gap) * 6)) / 7), 64px);
+/* ✅ 棋盤最大可用寬度（關鍵） */
+  --boardMax: 420px;   /* 380~440 都合理，我幫你選教材感最好的 */
 
-  /* 左側符號（不佔位，只貼在外側） */
-  --labelGap: 8px;          /* 標籤距離棋盤的距離 */
-  --labelW: 44px;           /* 標籤區寬（越小越靠左） */
-
-  /* 欄標高度 */
+  /* 其他保持不變 */
+  --labelGap: 8px;
+  --labelW: 36px;
   --colLabelH: 28px;
 }
 
@@ -199,7 +197,14 @@ h1{
     --labelW: 38px;
     --labelGap: 6px;
     --colLabelH: 26px;
-    --cell: clamp(28px, calc((100vw - (var(--side) * 2) - (var(--gap) * 6)) / 7), 64px);
+    --cell: clamp(
+  30px,
+  calc(
+    (min(100vw, var(--boardMax)) - (var(--side) * 2) - (var(--gap) * 6))
+    / 7
+  ),
+  56px
+);
   }
 }
 </style>
