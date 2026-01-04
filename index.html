@@ -226,68 +226,82 @@ h1{
 
 <script>
 const cells = [...document.querySelectorAll('.cell')];
+
 let dragEl = null;
 let dragNote = null;
 let overCell = null;
 
 /* 工具 */
 function clearHighlight(){
-  cells.forEach(c=>c.classList.remove('highlight'));
+  cells.forEach(c => c.classList.remove('highlight'));
 }
-function findCell(x,y){
-  const el = document.elementFromPoint(x,y);
+function findCell(x, y){
+  const el = document.elementFromPoint(x, y);
   return el && el.classList.contains('cell') ? el : el?.closest('.cell');
 }
+function cleanupDrag(){
+  clearHighlight();
+  if (dragEl) dragEl.remove();
+  dragEl = null;
+  dragNote = null;
+  overCell = null;
+}
+function startDrag(note, x, y){
+  // 避免殘留的 dragEl 造成鬼影
+  cleanupDrag();
 
-/* 從音名區拖 */
-document.getElementById('palette').addEventListener('touchstart', e=>{
+  dragNote = note;
+  dragEl = document.createElement('div');
+  dragEl.className = 'tile dragging';
+  dragEl.textContent = dragNote;
+  document.body.appendChild(dragEl);
+
+  // ✅ 關鍵：touchstart 當下就定位，避免左側/左上角冒出「多一顆」
+  dragEl.style.left = x + 'px';
+  dragEl.style.top  = y + 'px';
+}
+
+/* 1) 從音名區拖 */
+document.getElementById('palette').addEventListener('touchstart', e => {
   const t = e.target.closest('.palette-tile');
   if(!t) return;
   e.preventDefault();
 
-  dragNote = t.dataset.note;
-  dragEl = document.createElement('div');
-  dragEl.className = 'tile dragging';
-  dragEl.textContent = dragNote;
-  document.body.appendChild(dragEl);
-},{passive:false});
+  const touch = e.touches[0];
+  startDrag(t.dataset.note, touch.clientX, touch.clientY);
+}, { passive:false });
 
-/* 從已放置方塊拖出（拖出放手即消失，不需要點兩下） */
-document.addEventListener('touchstart', e=>{
+/* 2) 從已放置方塊拖出（拖出放手即刪除） */
+document.addEventListener('touchstart', e => {
   const placed = e.target.closest('.placed');
   if(!placed) return;
   e.preventDefault();
 
-  dragNote = placed.textContent;
-  dragEl = document.createElement('div');
-  dragEl.className = 'tile dragging';
-  dragEl.textContent = dragNote;
-  document.body.appendChild(dragEl);
-  placed.remove(); // 先拿掉，若沒放回格子就等於刪除
-},{passive:false});
+  const touch = e.touches[0];
+  startDrag(placed.textContent, touch.clientX, touch.clientY);
+  placed.remove(); // 先拿掉；若沒放回格子＝刪除
+}, { passive:false });
 
 /* 拖曳中 */
-document.addEventListener('touchmove', e=>{
+document.addEventListener('touchmove', e => {
   if(!dragEl) return;
   e.preventDefault();
 
-  const t = e.touches[0];
-  dragEl.style.left = t.clientX+'px';
-  dragEl.style.top  = t.clientY+'px';
+  const touch = e.touches[0];
+  dragEl.style.left = touch.clientX + 'px';
+  dragEl.style.top  = touch.clientY + 'px';
 
-  const cell = findCell(t.clientX,t.clientY);
+  const cell = findCell(touch.clientX, touch.clientY);
   if(cell !== overCell){
     overCell = cell;
     clearHighlight();
     if(overCell) overCell.classList.add('highlight');
   }
-},{passive:false});
+}, { passive:false });
 
-/* 放手 */
-document.addEventListener('touchend', ()=>{
+/* 放手：有放到格子就放入，沒放到就消失 */
+document.addEventListener('touchend', () => {
   if(!dragEl) return;
-
-  clearHighlight();
 
   if(overCell){
     overCell.innerHTML = '';
@@ -296,18 +310,20 @@ document.addEventListener('touchend', ()=>{
     placed.textContent = dragNote;
     overCell.appendChild(placed);
   }
-  // 沒放到任何 cell：直接消失（不做任何事）
+  cleanupDrag();
+}, { passive:false });
 
-  dragEl.remove();
-  dragEl = null;
-  dragNote = null;
-  overCell = null;
-});
+/* ✅ 重要：遇到來電/切App/系統中斷時，也要清掉拖曳殘影 */
+document.addEventListener('touchcancel', () => {
+  cleanupDrag();
+}, { passive:false });
 
-/* 全部刪除：清空 7×3 */
-document.getElementById('clearAllBtn').addEventListener('click', ()=>{
-  cells.forEach(c=>c.innerHTML='');
+/* 全部刪除：清空格子 + 同時清掉任何卡住的拖曳方塊 */
+document.getElementById('clearAllBtn').addEventListener('click', () => {
+  cells.forEach(c => c.innerHTML = '');
+  cleanupDrag();
 });
 </script>
+
 </body>
 </html>
