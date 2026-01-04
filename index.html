@@ -9,15 +9,27 @@
 :root{
   --gap: 6px;
   --side: 12px;
-  --cell: clamp(34px, calc((100vw - (var(--side) * 2) - (var(--gap) * 6)) / 7), 64px);
 
-  /* 左側列標籤（不影響棋盤對齊） */
-  --labelW: 56px;
+  /* 讓小手機也不擠爆 */
+  --cell: clamp(32px, calc((100vw - (var(--side) * 2) - (var(--gap) * 6)) / 7), 64px);
+
+  /* 左側列標籤：加寬避免 Root 擠出 */
+  --labelW: 68px;
   --labelGap: 10px;
-  --colLabelH: 24px;
+
+  /* 上方欄標高度加一點，避免擠到格子 */
+  --colLabelH: 28px;
 }
 
 *{ box-sizing:border-box; }
+
+/* ✅ 固定背景/版面：禁止捲動與回彈 */
+html, body{
+  height:100%;
+  overflow:hidden;
+  overscroll-behavior:none;
+  touch-action:none;
+}
 
 body{
   margin:0;
@@ -30,6 +42,8 @@ body{
   max-width:560px;
   margin:0 auto;
   padding:12px;
+  height:100%;
+  overflow:hidden;
 }
 
 h1{
@@ -38,7 +52,7 @@ h1{
   margin:6px 0 12px;
 }
 
-/* ===== 上方棋盤：以「7 欄」為中心對齊 ===== */
+/* ===== 上方棋盤：以「7欄」為中心對齊 ===== */
 .board-wrap{
   display:flex;
   justify-content:center; /* 🔑 讓 7 欄棋盤與下方答案格同中心 */
@@ -47,11 +61,10 @@ h1{
 
 .board{
   position:relative;
-  /* 預留左側標籤空間（不改變棋盤中心，只是增加左邊留白） */
-  padding-left: calc(var(--labelW) + var(--labelGap));
+  padding-left: calc(var(--labelW) + var(--labelGap)); /* 預留左側標籤空間，不改變棋盤中心 */
 }
 
-/* 真正的棋盤：只有 7 欄（欄標 + 3 排） */
+/* 真正棋盤：只有 7 欄 */
 .grid-board{
   display:grid;
   grid-template-columns: repeat(7, var(--cell));
@@ -60,18 +73,22 @@ h1{
   justify-content:center;
 }
 
-/* 上方欄標 */
+/* 上方欄標：自適應字級、永不超出 */
 .col-label{
   height: var(--colLabelH);
   display:flex;
   align-items:flex-end;
   justify-content:center;
-  font-size:12px;
+  font-size: clamp(10px, 2.8vw, 12px);
   font-weight:800;
-  color:rgba(255,255,255,.85);
+  color:rgba(255,255,255,.88);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  line-height:1;
 }
 
-/* 左側列標（不佔 grid 欄位，獨立貼上） */
+/* 左側列標：不佔 grid 欄位，獨立貼上 */
 .row-labels{
   position:absolute;
   left: 0;
@@ -89,9 +106,13 @@ h1{
   display:flex;
   align-items:center;
   justify-content:flex-end;
-  font-size:12px;
+  font-size: clamp(10px, 2.8vw, 12px);
   font-weight:800;
-  color: rgba(255,255,255,.8);
+  color: rgba(255,255,255,.82);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  line-height:1;
 }
 
 /* 7×3 空白格 */
@@ -172,9 +193,9 @@ h1{
 }
 .clear-all:active{ transform:translateY(1px); }
 
-/* 小螢幕稍微縮左標 */
+/* 小螢幕再縮一下左標，避免擠爆 */
 @media (max-width: 380px){
-  :root{ --labelW: 48px; --labelGap: 8px; }
+  :root{ --labelW: 60px; --labelGap: 8px; }
 }
 </style>
 </head>
@@ -201,7 +222,7 @@ h1{
         <div class="col-label">4</div>
         <div class="col-label">5</div>
         <div class="col-label">6m</div>
-        <div class="col-label">7mb5</div>
+        <div class="col-label">7m♭5</div>
 
         <!-- 第 1 排（5th） -->
         <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
@@ -248,13 +269,18 @@ h1{
 <button id="clearAllBtn" class="clear-all">全部刪除</button>
 
 <script>
+/* ✅ 強制防止整頁在拖曳時捲動/回彈（背景固定） */
+document.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+}, { passive: false });
+
 const cells = [...document.querySelectorAll('.cell')];
 
 let dragEl = null;
 let dragNote = null;
 let overCell = null;
 
-/* ===== 工具 ===== */
+/* 工具 */
 function clearHighlight(){
   cells.forEach(c => c.classList.remove('highlight'));
 }
@@ -284,7 +310,7 @@ function startDrag(note, x, y){
   dragEl.style.top  = y + 'px';
 }
 
-/* ===== 從音名區拖 ===== */
+/* 從音名區拖 */
 document.getElementById('palette').addEventListener('touchstart', (e) => {
   const t = e.target.closest('.palette-tile');
   if(!t) return;
@@ -294,7 +320,7 @@ document.getElementById('palette').addEventListener('touchstart', (e) => {
   startDrag(t.dataset.note, touch.clientX, touch.clientY);
 }, { passive:false });
 
-/* ===== 從已放置方塊拖出（拖出放手即消失）===== */
+/* 從已放置方塊拖出（拖出放手即消失） */
 document.addEventListener('touchstart', (e) => {
   const placed = e.target.closest('.placed');
   if(!placed) return;
@@ -307,10 +333,9 @@ document.addEventListener('touchstart', (e) => {
   startDrag(note, touch.clientX, touch.clientY);
 }, { passive:false });
 
-/* ===== 拖曳中 ===== */
+/* 拖曳中 */
 document.addEventListener('touchmove', (e) => {
   if(!dragEl) return;
-  e.preventDefault();
 
   const touch = e.touches[0];
   dragEl.style.left = touch.clientX + 'px';
@@ -324,7 +349,7 @@ document.addEventListener('touchmove', (e) => {
   }
 }, { passive:false });
 
-/* ===== 放手 ===== */
+/* 放手 */
 document.addEventListener('touchend', () => {
   if(!dragEl) return;
 
@@ -341,13 +366,13 @@ document.addEventListener('touchend', () => {
   cleanupDragging();
 }, { passive:false });
 
-/* ===== 觸控中斷保底 ===== */
+/* 觸控中斷保底 */
 document.addEventListener('touchcancel', () => {
   clearHighlight();
   cleanupDragging();
 }, { passive:false });
 
-/* ===== 全部刪除 ===== */
+/* 全部刪除 */
 document.getElementById('clearAllBtn').addEventListener('click', () => {
   cells.forEach(c => c.innerHTML = '');
   clearHighlight();
