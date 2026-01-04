@@ -6,7 +6,7 @@
 <title>大調音階｜三和弦級數練習</title>
 
 <style>
-/* ===== 手機直式優先（7 欄完整顯示）===== */
+/* ===== 手機直式優先 ===== */
 :root{
   --gap: 6px;
   --side: 12px;
@@ -31,10 +31,10 @@ body{
 h1{
   font-size:16px;
   text-align:center;
-  margin:6px 0 10px;
+  margin:6px 0 12px;
 }
 
-/* ===== 7×3 空白格 ===== */
+/* ===== 7×3 格子 ===== */
 .grid{
   display:grid;
   grid-template-columns:repeat(7,var(--cell));
@@ -97,7 +97,7 @@ h1{
   background:#9aa0a8;
 }
 
-/* ===== 已放置的方塊 ===== */
+/* ===== 已放置 ===== */
 .placed{
   position:absolute;
   left:50%;
@@ -106,24 +106,20 @@ h1{
   background:#6e7680;
 }
 
-  /* 右下角固定「全部刪除」 */
+/* ===== 右下角全部刪除 ===== */
 .clear-all{
-  position: fixed;
-  right: 14px;
-  bottom: 14px;
-  padding: 12px 14px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.18);
-  background: rgba(255,255,255,.10);
-  color: #fff;
-  font-weight: 700;
-  letter-spacing: .5px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  z-index: 999;
+  position:fixed;
+  right:14px;
+  bottom:14px;
+  z-index:1000;
+  padding:12px 14px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.12);
+  color:#fff;
+  font-weight:700;
 }
-.clear-all:active{ transform: translateY(1px); }
-
+.clear-all:active{ transform:translateY(1px); }
 </style>
 </head>
 
@@ -150,7 +146,6 @@ h1{
       <div class="tile palette-tile" data-note="A">A</div>
       <div class="tile palette-tile" data-note="B">B</div>
     </div>
-
     <div class="row">
       <div class="tile palette-tile" data-note="C#">C#</div>
       <div class="tile palette-tile" data-note="D#">D#</div>
@@ -160,7 +155,6 @@ h1{
       <div class="tile palette-tile" data-note="A#">A#</div>
       <div class="tile palette-tile" data-note="B#">B#</div>
     </div>
-
     <div class="row">
       <div class="tile palette-tile" data-note="Cb">Cb</div>
       <div class="tile palette-tile" data-note="Db">Db</div>
@@ -173,25 +167,26 @@ h1{
   </div>
 </div>
 
+<!-- 全部刪除 -->
+<button id="clearAllBtn" class="clear-all">全部刪除</button>
+
 <script>
-/* ===== 手機 touch 拖曳（穩定版）===== */
 const cells = [...document.querySelectorAll('.cell')];
 let dragEl = null;
 let dragNote = null;
 let overCell = null;
-let fromCell = null; // ⭐ 新增：記住是從哪個格子拖出來的
 
-
+/* 工具 */
 function clearHighlight(){
   cells.forEach(c=>c.classList.remove('highlight'));
 }
-
 function findCell(x,y){
   const el = document.elementFromPoint(x,y);
   return el && el.classList.contains('cell') ? el : el?.closest('.cell');
 }
 
-document.getElementById('palette').addEventListener('touchstart',e=>{
+/* 從音名區拖 */
+document.getElementById('palette').addEventListener('touchstart', e=>{
   const t = e.target.closest('.palette-tile');
   if(!t) return;
   e.preventDefault();
@@ -203,34 +198,30 @@ document.getElementById('palette').addEventListener('touchstart',e=>{
   document.body.appendChild(dragEl);
 },{passive:false});
 
-// ===== 已放置方塊：拖出即刪除 =====
-document.addEventListener('touchstart', e => {
+/* 從已放置方塊拖出 */
+document.addEventListener('touchstart', e=>{
   const placed = e.target.closest('.placed');
-  if (!placed) return;
-
+  if(!placed) return;
   e.preventDefault();
 
-  fromCell = placed.parentElement;
   dragNote = placed.textContent;
-
   dragEl = document.createElement('div');
   dragEl.className = 'tile dragging';
   dragEl.textContent = dragNote;
   document.body.appendChild(dragEl);
+  placed.remove(); // 直接先拿掉
+},{passive:false});
 
-  placed.remove(); // ⭐ 先從格子拿掉
-}, { passive: false });
-
-  
-document.addEventListener('touchmove',e=>{
+/* 拖曳中 */
+document.addEventListener('touchmove', e=>{
   if(!dragEl) return;
   e.preventDefault();
 
-  const touch = e.touches[0];
-  dragEl.style.left = touch.clientX+'px';
-  dragEl.style.top  = touch.clientY+'px';
+  const t = e.touches[0];
+  dragEl.style.left = t.clientX+'px';
+  dragEl.style.top  = t.clientY+'px';
 
-  const cell = findCell(touch.clientX,touch.clientY);
+  const cell = findCell(t.clientX,t.clientY);
   if(cell !== overCell){
     overCell = cell;
     clearHighlight();
@@ -238,34 +229,28 @@ document.addEventListener('touchmove',e=>{
   }
 },{passive:false});
 
-document.addEventListener('touchend', e => {
-  if (!dragEl) return;
+/* 放手 */
+document.addEventListener('touchend', ()=>{
+  if(!dragEl) return;
 
   clearHighlight();
-
-  if (overCell) {
-    // ✅ 有放回某個格子 → 放進去
+  if(overCell){
     overCell.innerHTML = '';
     const placed = document.createElement('div');
     placed.className = 'tile placed';
     placed.textContent = dragNote;
     overCell.appendChild(placed);
   }
-  // ❌ 沒放在任何格子 → 直接消失（不做任何事）
-
   dragEl.remove();
   dragEl = null;
   dragNote = null;
   overCell = null;
-  fromCell = null;
 });
 
-// ===== 全部刪除（清空 7×3）=====
-document.getElementById('clearAllBtn').addEventListener('click', () => {
-  cells.forEach(cell => cell.innerHTML = '');
+/* 全部刪除 */
+document.getElementById('clearAllBtn').addEventListener('click', ()=>{
+  cells.forEach(c=>c.innerHTML='');
 });
-
-  
 </script>
 </body>
 </html>
