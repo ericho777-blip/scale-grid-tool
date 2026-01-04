@@ -105,6 +105,25 @@ h1{
   transform:translate(-50%,-50%);
   background:#6e7680;
 }
+
+  /* 右下角固定「全部刪除」 */
+.clear-all{
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.10);
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: .5px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 999;
+}
+.clear-all:active{ transform: translateY(1px); }
+
 </style>
 </head>
 
@@ -241,6 +260,12 @@ document.addEventListener('touchend', e => {
   fromCell = null;
 });
 
+// ===== 全部刪除（清空 7×3）=====
+document.getElementById('clearAllBtn').addEventListener('click', () => {
+  cells.forEach(cell => cell.innerHTML = '');
+});
+
+  
 </script>
 </body>
 </html>
