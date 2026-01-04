@@ -11,10 +11,15 @@
   --side: 12px;
 
   /* 讓小手機也不擠爆 */
-  --cell: clamp(32px, calc((100vw - (var(--side) * 2) - (var(--gap) * 6)) / 7), 64px);
+  --cell: clamp(
+  28px,
+  calc((100vw - (var(--side) * 2) - (var(--labelW) + var(--labelGap)) - (var(--gap) * 6)) / 7),
+  64px
+);
+
 
   /* 左側列標籤：加寬避免 Root 擠出 */
-  --labelW: 68px;
+  --labelW: clamp(56px, 16vw, 68px);
   --labelGap: 10px;
 
   /* 上方欄標高度加一點，避免擠到格子 */
