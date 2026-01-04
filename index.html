@@ -91,12 +91,14 @@ h1{
 .row-labels{
   position:absolute;
   top: var(--colLabelH);
-  right: calc(100% + var(--labelGap)); /* 🔑 貼在棋盤左側外面 */
+  left: 0;                         /* 以棋盤左邊為基準 */
+  transform: translateX(-70%);     /* 往左移一點，但仍在畫面內 */
   width: var(--labelW);
   display:flex;
   flex-direction:column;
   gap: var(--gap);
   align-items:flex-end;
+  pointer-events:none;             /* 不干擾拖曳 */
 }
 
 .row-label{
