@@ -156,6 +156,45 @@ h1{
   font-weight:800;
 }
 .clear-all:active{ transform:translateY(1px); }
+/* ===== 上方棋盤對齊下方答案格 ===== */
+.board-wrap{
+  position: relative;
+  display: flex;
+  justify-content: center; /* 🔑 以 7 欄為中心 */
+  margin-bottom: 14px;
+}
+
+/* 左側 Root / 3rd / 5th */
+.row-labels{
+  position: absolute;
+  left: calc(50% - (var(--cell) * 3.5) - 48px); /* 貼在 7 欄左邊 */
+  top: 24px; /* 對齊第一排格子 */
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.row-label{
+  height: var(--cell);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(255,255,255,.8);
+}
+
+/* 真正的 7×3 */
+.grid-board{
+  display: grid;
+  grid-template-columns: repeat(7, var(--cell));
+  grid-template-rows: 24px repeat(3, var(--cell));
+  gap: var(--gap);
+  justify-content: center;
+}
+
+  
 </style>
 </head>
 
